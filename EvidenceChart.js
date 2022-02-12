@@ -281,7 +281,7 @@ class Entry {
         this.selected_pos = min(max(this.selected_pos, 0), entry_length);
         break;
       case 67:
-        if (this.selected && keyIsDown(CONTROL) {
+        if (this.selected && keyIsDown(CONTROL)) {
           copyToClipboard(this.entry);
         }
         break;
