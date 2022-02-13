@@ -19,9 +19,9 @@ function setup() {
   evidence_chart = new EvidenceChart();
 
   let canvas = createCanvas(windowWidth, windowHeight);
-  canvas.attribute('contenteditable', 'true');
-  canvas.elt.addEventListener('paste', e => {
-    paste(e.clipboardData.getData('text'));
+  canvas.attribute("contenteditable", "true");
+  canvas.elt.addEventListener("paste", (e) => {
+    paste(e.clipboardData.getData("text"));
   });
   aspect_ratio = windowWidth / windowHeight;
   scroll_bar.scroll_max = 1 + windowHeight * (scroll_bar.scroll_pages - 1);
@@ -33,54 +33,7 @@ function setup() {
   evidence_chart.update_positions();
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  aspect_ratio = windowWidth / windowHeight;
-  scroll_bar.scroll_max = 1 + windowHeight * (scroll_bar.scroll_pages - 1);
-  if (mobile_mode != aspect_ratio < mobile_aspect_ratio) {
-    mobile_mode = aspect_ratio < mobile_aspect_ratio;
-    scroll_bar.update_scroll();
-    scroll_bar.scroll_anim_start = Date.now();
-    scroll_bar.scrolls = scroll_bar.scroll;
-    scroll_bar.scrolle = 0;
-  }
-  udjatest.update_positions();
-  evidence_chart.update_positions();
-}
-
-function keyTyped() {
-  let output = key;
-  switch (key) {
-    case 'Enter':
-      output = '\n';
-      break;
-    case BACKSPACE:
-  }
-  for (let entry of evidence_chart.entries) {
-    entry.typing(output);
-  }
-}
-
-function keyPressed() {
-  for (let entry of evidence_chart.entries) {
-    entry.keyPressed(keyCode);
-  }
-}
-
-function keyReleased() {
-  for (let entry of evidence_chart.entries) {
-    entry.keyReleased(keyCode)
-  }
-}
-
-function paste(e) {
-  for (let entry of evidence_chart.entries) {
-    entry.paste(e)
-  }
-}
-
 function draw() {
-
   if (pasted_clipboard != null) {
     udjatest.types[0][0] = pasted_clipboard;
     pasted_clipboard = null;
@@ -89,7 +42,13 @@ function draw() {
 
   // udjatest.types[0][0] = isMobileDevice();
 
-  bg = map(scroll_bar.scroll, 0, scroll_bar.scroll_max, color_pallet[0][0], color_pallet[0][1]);
+  bg = map(
+    scroll_bar.scroll,
+    0,
+    scroll_bar.scroll_max,
+    color_pallet[0][0],
+    color_pallet[0][1]
+  );
   background(bg);
   if (Date.now() - date > 2000 && typeof loading == "boolean") {
     loading = 1;
@@ -130,15 +89,56 @@ function draw() {
     udjatest.draw();
 
     if (mobile_mode) {
-      scroll_bar.draw(
-        windowWidth,
-        windowHeight / 20,
-        0,
-        windowHeight
-      );
+      scroll_bar.draw(windowWidth, windowHeight / 20, 0, windowHeight);
     }
 
     pop();
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  aspect_ratio = windowWidth / windowHeight;
+  scroll_bar.scroll_max = 1 + windowHeight * (scroll_bar.scroll_pages - 1);
+  if (mobile_mode != aspect_ratio < mobile_aspect_ratio) {
+    mobile_mode = aspect_ratio < mobile_aspect_ratio;
+    scroll_bar.update_scroll();
+    scroll_bar.scroll_anim_start = Date.now();
+    scroll_bar.scrolls = scroll_bar.scroll;
+    scroll_bar.scrolle = 0;
+  }
+  udjatest.update_positions();
+  evidence_chart.update_positions();
+}
+
+function keyTyped() {
+  let output = key;
+  switch (key) {
+    case "Enter":
+      output = "\n";
+      break;
+    case BACKSPACE:
+  }
+  for (let entry of evidence_chart.entries) {
+    entry.typing(output);
+  }
+}
+
+function keyPressed() {
+  for (let entry of evidence_chart.entries) {
+    entry.keyPressed(keyCode);
+  }
+}
+
+function keyReleased() {
+  for (let entry of evidence_chart.entries) {
+    entry.keyReleased(keyCode);
+  }
+}
+
+function paste(e) {
+  for (let entry of evidence_chart.entries) {
+    entry.paste(e);
   }
 }
 
@@ -179,15 +179,9 @@ function update_color_palette(update = false) {
     dark_mode = !dark_mode;
   }
   if (dark_mode) {
-    color_pallet = [
-      [18, 10],
-      [255]
-    ];
+    color_pallet = [[18, 10], [255]];
   } else {
-    color_pallet = [
-      [225, 165],
-      [100]
-    ];
+    color_pallet = [[225, 165], [100]];
   }
 }
 
@@ -201,5 +195,8 @@ function copyToClipboard(text) {
 }
 
 function isMobileDevice() {
-  return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
-};
+  return (
+    typeof window.orientation !== "undefined" ||
+    navigator.userAgent.indexOf("IEMobile") !== -1
+  );
+}

@@ -38,12 +38,7 @@ class Scroll_bar {
       this.y_max - this.offset - this.h
     );
   }
-  draw(
-    x,
-    h,
-    y_min,
-    y_max
-  ) {
+  draw(x, h, y_min, y_max) {
     strokeWeight(4);
     stroke(color_pallet[1] * 3, 55);
     fill(0, 0);
@@ -68,7 +63,12 @@ class Scroll_bar {
       return 1 + c3 * pow(x - 1, 3) + c1 * pow(x - 1, 2);
     }
 
-    let cur_anim = easeOutBack(min(max((Date.now() - this.scroll_anim_start) / this.scroll_anim_speed, 0), 1));
+    let cur_anim = easeOutBack(
+      min(
+        max((Date.now() - this.scroll_anim_start) / this.scroll_anim_speed, 0),
+        1
+      )
+    );
     this.scroll = map(cur_anim, 0, 1, this.scrolls, this.scrolle);
   }
   send_mwheel_update(scroll) {

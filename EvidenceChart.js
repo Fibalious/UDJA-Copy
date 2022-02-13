@@ -29,7 +29,9 @@ class EvidenceChart {
       let sqt = t * t;
       return sqt / (2.0 * (sqt - t) + 1.0);
     }
-    let cur_anim = ParametricBlend(min(max((Date.now() - this.anim_start) / this.anim_speed, 0), 1));
+    let cur_anim = ParametricBlend(
+      min(max((Date.now() - this.anim_start) / this.anim_speed, 0), 1)
+    );
 
     this.x = map(cur_anim, 0, 1, this.xs, this.xe);
     this.y = map(cur_anim, 0, 1, this.ys, this.ye) - scroll;
@@ -66,14 +68,16 @@ class EvidenceChart {
       this.we = windowWidth * (1 - offset * 2);
       this.he = windowHeight * (1 - offset * 2);
     } else {
-      this.xe = windowWidth * (offset * 2) + windowWidth * (1 - (offset * 3)) * landscape_constant;
+      this.xe =
+        windowWidth * (offset * 2) +
+        windowWidth * (1 - offset * 3) * landscape_constant;
       this.ye = windowHeight * offset;
       landscape_constant = 1 - landscape_constant;
-      this.we = windowWidth * (1 - (offset * 3)) * landscape_constant;
+      this.we = windowWidth * (1 - offset * 3) * landscape_constant;
       this.he = windowHeight * (1 - offset * 2);
     }
 
-    if (typeof loading == 'boolean') {
+    if (typeof loading == "boolean") {
       if (mobile_mode) {
         this.xe = windowWidth * -0.2;
         this.ye = windowHeight + 1;
@@ -98,17 +102,22 @@ class EvidenceChart {
     }
   }
   detect_inside(x, y) {
-    if (this.x <= x && x <= this.x + this.w &&
-      this.y <= y && y <= this.y + this.h) {
-      return true
+    if (
+      this.x <= x &&
+      x <= this.x + this.w &&
+      this.y <= y &&
+      y <= this.y + this.h
+    ) {
+      return true;
     }
-    return false
+    return false;
   }
   mousePressed(x, y) {
     for (let entry of this.entries) {
       entry.mousePressed(x, y);
     }
-    if (this.detect_inside(x, y)) {}
+    if (this.detect_inside(x, y)) {
+    }
   }
   draw() {
     let y_offset = this.y - this.scroll_bar.scroll;
@@ -121,8 +130,8 @@ class EvidenceChart {
 
     noStroke();
     fill(bg);
-    rect(this.x - 50, this.y - windowHeight - 5, this.w + 100, windowHeight)
-    rect(this.x - 50, this.y + this.h + 5, this.w + 100, windowHeight)
+    rect(this.x - 50, this.y - windowHeight - 5, this.w + 100, windowHeight);
+    rect(this.x - 50, this.y + this.h + 5, this.w + 100, windowHeight);
 
     if (debug) {
       // Bounding Box
@@ -144,8 +153,8 @@ class EvidenceChart {
     const insert = (arr, index, newItem) => [
       ...arr.slice(0, index),
       newItem,
-      ...arr.slice(index)
-    ]
+      ...arr.slice(index),
+    ];
     this.entries = insert(this.entries, this.entries.length - 1, new Entry());
   }
 }
@@ -179,28 +188,28 @@ class Entry {
 
     this.text_update_cords = [false, 0, 0];
     this.text_size = 25;
-    this.text_char_cords = [
-      [0, [0],
-        [0]
-      ]
-    ];
+    this.text_char_cords = [[0, [0], [0]]];
 
-    this.entry = 'Hey there! You\'re here early.\n' +
-      '\n' +
-      'I have been working on getting this text box working\, ' +
-      'here is your testing area!\n' +
-      '\n' +
-      'Current TODO List:\n' +
-      '- Add the functionality to adapt the entire hitbox based ' +
-      'on the number of entries added\n' +
-      '- Selection, Such as Drag and also Ctrl+A\n' +
-      '- Obviously complete the entire features for' +
-      'adding and deleting entire rows and so on';
-    this.entry = '';
+    this.entry =
+      "Hey there! You're here early.\n" +
+      "\n" +
+      "I have been working on getting this text box working, " +
+      "here is your testing area!\n" +
+      "\n" +
+      "Current TODO List:\n" +
+      "- Add the functionality to adapt the entire hitbox based " +
+      "on the number of entries added\n" +
+      "- Selection, Such as Drag and also Ctrl+A\n" +
+      "- Obviously complete the entire features for" +
+      "adding and deleting entire rows and so on";
+    this.entry = "";
   }
   update() {
     if (this.text_update_cords[0] == 2) {
-      this.mousePressed_part2(this.text_update_cords[1], this.text_update_cords[2]);
+      this.mousePressed_part2(
+        this.text_update_cords[1],
+        this.text_update_cords[2]
+      );
       this.text_update_cords[0] = false;
     }
     let entry_length = this.text_char_cords[this.text_char_cords.length - 1];
@@ -230,7 +239,7 @@ class Entry {
       this.blink.state = true;
       this.blink.start = Date.now();
       this.selected_pos += contents.length;
-      this.selected_pos = min(max(this.selected_pos, 0), this.entry.length)
+      this.selected_pos = min(max(this.selected_pos, 0), this.entry.length);
     }
   }
   typing_del() {
@@ -243,7 +252,7 @@ class Entry {
       this.blink.state = true;
       this.blink.start = Date.now();
       this.selected_pos--;
-      this.selected_pos = min(max(this.selected_pos, 0), this.entry.length)
+      this.selected_pos = min(max(this.selected_pos, 0), this.entry.length);
     }
   }
   keyPressed(keyCode) {
@@ -311,7 +320,7 @@ class Entry {
 
     let res = new Object();
     res.y_end = this.y + this.h + 8;
-    return res
+    return res;
   }
   draw_outline() {
     stroke(color_pallet[1] - 50);
@@ -321,11 +330,15 @@ class Entry {
     rect(this.x, this.y, this.w, this.h, 7);
   }
   detect_inside(x, y) {
-    if (this.x <= x && x <= this.x + this.w &&
-      this.y <= y && y <= this.y + this.h) {
-      return true
+    if (
+      this.x <= x &&
+      x <= this.x + this.w &&
+      this.y <= y &&
+      y <= this.y + this.h
+    ) {
+      return true;
     }
-    return false
+    return false;
   }
   mousePressed(x, y) {
     this.selected = false;
@@ -360,7 +373,7 @@ class Entry {
     let char_count = 0;
     this.text_char_cords = [];
 
-    let print_entry = this.entry.split('\n');
+    let print_entry = this.entry.split("\n");
 
     if (Date.now() >= this.blink.start + 500) {
       this.blink.state = !this.blink.state;
@@ -368,14 +381,11 @@ class Entry {
     }
     for (let row of print_entry) {
       if (this.text_update_cords) {
-        this.text_char_cords.push([this.y + y_offset, [],
-          []
-        ]);
+        this.text_char_cords.push([this.y + y_offset, [], []]);
       }
       y_offset += this.text_size;
       let x_offset = 8;
-      for (let i of row.split(' ')) {
-
+      for (let i of row.split(" ")) {
         let target_x = this.x + x_offset;
         let target_y = this.y + y_offset;
         if (target_x + textWidth(i) >= this.x + this.w - 8) {
@@ -384,25 +394,30 @@ class Entry {
           target_x -= x_offset;
           x_offset = 8;
           if (this.text_update_cords) {
-            this.text_char_cords.push([this.y + y_offset, [],
-              []
-            ]);
+            this.text_char_cords.push([this.y + y_offset, [], []]);
           }
         }
-        i += ' ';
+        i += " ";
         for (let letter of i) {
           let target_x = this.x + x_offset;
           let target_y = this.y + y_offset;
 
           text(letter, target_x, target_y);
           if (this.text_update_cords) {
-            this.text_char_cords[this.text_char_cords.length - 1][1].push(target_x + textWidth(letter) / 2);
-            this.text_char_cords[this.text_char_cords.length - 1][2].push(char_count);
+            this.text_char_cords[this.text_char_cords.length - 1][1].push(
+              target_x + textWidth(letter) / 2
+            );
+            this.text_char_cords[this.text_char_cords.length - 1][2].push(
+              char_count
+            );
           }
           x_offset += textWidth(letter);
           char_count++;
-          if (this.selected_pos == char_count - 1 &&
-            this.blink.state && this.selected) {
+          if (
+            this.selected_pos == char_count - 1 &&
+            this.blink.state &&
+            this.selected
+          ) {
             rect(target_x, target_y, 2, this.text_size);
           }
         }
@@ -413,7 +428,7 @@ class Entry {
     }
     let res = new Object();
     res.new_h = this.text_size + y_offset + 12;
-    return res
+    return res;
   }
 }
 
@@ -428,11 +443,15 @@ class AddEntry {
   }
   update() {}
   detect_inside(x, y) {
-    if (this.x <= x && x <= this.x + this.w &&
-      this.y <= y && y <= this.y + this.h) {
-      return true
+    if (
+      this.x <= x &&
+      x <= this.x + this.w &&
+      this.y <= y &&
+      y <= this.y + this.h
+    ) {
+      return true;
     }
-    return false
+    return false;
   }
   mousePressed(x, y) {
     if (this.detect_inside(x, y)) {
@@ -456,7 +475,7 @@ class AddEntry {
     textFont("Impact");
     textSize(this.text_size);
 
-    let txt = '+ Add Entry';
+    let txt = "+ Add Entry";
     text(txt, this.x, this.y);
 
     this.h = this.text_size;
@@ -464,6 +483,6 @@ class AddEntry {
 
     let res = new Object();
     res.y_end = this.y + this.text_size + 8;
-    return res
+    return res;
   }
 }
