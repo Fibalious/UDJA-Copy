@@ -113,11 +113,18 @@ class EvidenceChart {
     return false;
   }
   mousePressed(x, y) {
+    this.scroll_bar.mousePressed(x, y);
     for (let entry of this.entries) {
       entry.mousePressed(x, y);
     }
     if (this.detect_inside(x, y)) {
     }
+  }
+  mouseDragged(x, y) {
+    this.scroll_bar.mouseDragged(x, y);
+  }
+  mouseReleased() {
+    this.scroll_bar.mouseReleased(x, y);
   }
   draw() {
     let y_offset = this.y - this.scroll_bar.scroll;

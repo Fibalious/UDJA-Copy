@@ -164,10 +164,12 @@ function mousePressed() {
 
 function mouseDragged() {
   scroll_bar.mouseDragged(mouseX, mouseY);
+  evidence_chart.scroll_bar.mouseDragged(mouseX, mouseY);
 }
 
 function mouseReleased() {
-  scroll_scrolling = false;
+  scroll_bar.mouseReleased();
+  evidence_chart.scroll_bar.mouseReleased();
 }
 
 function update_color_palette(update = false) {
