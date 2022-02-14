@@ -21,6 +21,8 @@ class EvidenceChart {
     this.boundry_offset = 8;
 
     this.entries = [new AddEntry()];
+    this.entries = insert(this.entries, 0, new Entry());
+    this.entries[0].attributes = [new Entry_MetaData()];
 
     this.scroll_bar = new Scroll_bar();
   }
@@ -30,7 +32,7 @@ class EvidenceChart {
       return sqt / (2.0 * (sqt - t) + 1.0);
     }
     let cur_anim = ParametricBlend(
-      min(max((Date.now() - this.anim_start) / this.anim_speed, 0), 1)
+      minmax((Date.now() - this.anim_start) / this.anim_speed, 0, 1)
     );
 
     this.x = map(cur_anim, 0, 1, this.xs, this.xe);
@@ -50,9 +52,7 @@ class EvidenceChart {
       entry.x = this.x;
       entry.y = this.y;
       entry.w = this.w - 20;
-      entry.h = this.h;
-    }
-    for (let entry of this.entries) {
+      entry.text_size = minmax(this.h / 20, 0, 25);
       entry.update();
     }
   }
@@ -150,11 +150,6 @@ class EvidenceChart {
     );
   }
   new_entry() {
-    const insert = (arr, index, newItem) => [
-      ...arr.slice(0, index),
-      newItem,
-      ...arr.slice(index),
-    ];
     this.entries = insert(this.entries, this.entries.length - 1, new Entry());
   }
 }
@@ -165,6 +160,8 @@ class Entry {
     this.y = 0;
     this.w = 0;
     this.h = 0;
+
+    this.attributes = [];
 
     this.selected = false;
     this.selected_pos = 5;
@@ -205,6 +202,9 @@ class Entry {
     this.entry = "";
   }
   update() {
+    for (let e of this.attributes) {
+      e.text_size = this.text_size;
+    }
     if (this.text_update_cords[0] == 2) {
       this.mousePressed_part2(
         this.text_update_cords[1],
@@ -221,12 +221,12 @@ class Entry {
     }
     if (this.left_arrow.state && Date.now() - this.left_arrow.start >= 500) {
       this.selected_pos--;
-      this.selected_pos = min(max(this.selected_pos, 0), entry_length);
+      this.selected_pos = minmax(this.selected_pos, 0, entry_length);
       this.left_arrow.start = Date.now() - (500 - 25);
     }
     if (this.right_arrow.state && Date.now() - this.right_arrow.start >= 500) {
       this.selected_pos++;
-      this.selected_pos = min(max(this.selected_pos, 0), entry_length);
+      this.selected_pos = minmax(this.selected_pos, 0, entry_length);
       this.right_arrow.start = Date.now() - (500 - 25);
     }
   }
@@ -239,7 +239,7 @@ class Entry {
       this.blink.state = true;
       this.blink.start = Date.now();
       this.selected_pos += contents.length;
-      this.selected_pos = min(max(this.selected_pos, 0), this.entry.length);
+      this.selected_pos = minmax(this.selected_pos, 0, this.entry.length);
     }
   }
   typing_del() {
@@ -252,7 +252,7 @@ class Entry {
       this.blink.state = true;
       this.blink.start = Date.now();
       this.selected_pos--;
-      this.selected_pos = min(max(this.selected_pos, 0), this.entry.length);
+      this.selected_pos = minmax(this.selected_pos, 0, this.entry.length);
     }
   }
   keyPressed(keyCode) {
@@ -278,7 +278,7 @@ class Entry {
         this.left_arrow.start = Date.now();
 
         this.selected_pos--;
-        this.selected_pos = min(max(this.selected_pos, 0), entry_length);
+        this.selected_pos = minmax(this.selected_pos, 0, entry_length);
         break;
       case RIGHT_ARROW:
         this.left_arrow.state = false;
@@ -287,7 +287,7 @@ class Entry {
         this.right_arrow.start = Date.now();
 
         this.selected_pos++;
-        this.selected_pos = min(max(this.selected_pos, 0), entry_length);
+        this.selected_pos = minmax(this.selected_pos, 0, entry_length);
         break;
       case 67:
         if (this.selected && keyIsDown(CONTROL)) {
@@ -315,17 +315,24 @@ class Entry {
     }
   }
   draw() {
-    this.h = this.draw_text().new_h;
+    for (let e of this.attributes) {
+      e.draw();
+    }
     this.draw_outline();
+    this.h = this.draw_text().new_h;
 
     let res = new Object();
     res.y_end = this.y + this.h + 8;
     return res;
   }
   draw_outline() {
-    stroke(color_pallet[1] - 50);
     strokeWeight(2);
-    fill(0, 0);
+    stroke(color_pallet[1] - 50);
+    if (dark_mode) {
+      fill(bg * 0.75, 255);
+    } else {
+      fill(bg + 30, 255);
+    }
     rectMode(CORNER);
     rect(this.x, this.y, this.w, this.h, 7);
   }
@@ -349,7 +356,7 @@ class Entry {
   mousePressed_part2(x, y) {
     this.selected = true;
     let row = floor((y - this.text_char_cords[0][0]) / this.text_size) - 1;
-    row = min(max(row, 0), this.text_char_cords.length - 1);
+    row = minmax(row, 0, this.text_char_cords.length - 1);
     let points = this.text_char_cords[row][1];
     points = points.slice(0, points.length - 1);
     points.push(x);
@@ -425,9 +432,10 @@ class Entry {
     }
     if (this.text_update_cords[0] == true) {
       this.text_update_cords[0] = 2;
+      print(this.text_char_cords);
     }
     let res = new Object();
-    res.new_h = this.text_size + y_offset + 12;
+    res.new_h = this.text_size + y_offset + 8;
     return res;
   }
 }
@@ -486,3 +494,60 @@ class AddEntry {
     return res;
   }
 }
+
+class Entry_MetaData {
+  constructor() {
+    this.x = 1400;
+    this.y = 250;
+    this.w = 0;
+    this.h = 0;
+
+    this.text_size = 25;
+
+    this.attribute = "Te";
+  }
+  draw() {
+    this.update();
+    this.draw_outline();
+    this.draw_text();
+  }
+  draw_outline() {
+    strokeWeight(2);
+    stroke(color_pallet[1] - 50);
+    if (dark_mode) {
+      fill(bg * 0.75, 255);
+    } else {
+      fill(bg + 30, 255);
+    }
+    rectMode(CORNER);
+    rect(this.x, this.y, this.w, this.h, 7);
+  }
+  draw_text() {
+    noStroke();
+    if (dark_mode) {
+      fill(155);
+    } else {
+      fill(155);
+    }
+    textAlign(LEFT, TOP);
+    textFont("Impact");
+
+    let x = this.x + 8;
+    let y = this.y + 8;
+
+    text(this.attribute, x, y);
+  }
+  update() {
+    textFont("Impact");
+    textSize(this.text_size);
+    this.w = 8 + textWidth(this.attribute) + 8;
+    this.h = this.text_size + 8 * 2;
+  }
+}
+
+const insert = (arr, index, newItem) => [
+  ...arr.slice(0, index),
+  newItem,
+  ...arr.slice(index),
+];
+const minmax = (x, mi, ma) => min(max(x, mi), ma);

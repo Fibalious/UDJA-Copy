@@ -154,8 +154,8 @@ function mousePressed() {
   if (mouseX < 50 && mouseY < 50) {
     fullscreen(!fullscreen());
   }
-  scroll_scrolling = scroll_bar.detect_colision(mouseX, mouseY);
-  if (!scroll_scrolling) {
+  scroll_bar.mousePressed(mouseX, mouseY);
+  if (!scroll_bar.scroll_scrolling) {
     update_color_palette();
   }
   udjatest.mousePressed(mouseX, mouseY);
@@ -163,11 +163,7 @@ function mousePressed() {
 }
 
 function mouseDragged() {
-  if (scroll_scrolling) {
-    let distance_moved = mouseY - scroll_scrolling;
-    scroll_bar.scrolle = mouseY * (scroll_bar.scroll_pages - 1);
-    scroll_bar.scrolle = min(max(scroll_bar.scrolle, 0), scroll_bar.scroll_max);
-  }
+  scroll_bar.mouseDragged(mouseX, mouseY);
 }
 
 function mouseReleased() {

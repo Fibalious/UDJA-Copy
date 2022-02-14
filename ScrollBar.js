@@ -18,7 +18,8 @@ class Scroll_bar {
     this.scroll_pages = 1.95;
     this.scroll_max = 1;
 
-    this.scroll_scrolling = false;
+    this.dragging = false;
+    this.dragging_pos = 0;
     this.scroll_anim_speed = 250;
     this.scroll_anim_start = Date.now();
 
@@ -39,22 +40,49 @@ class Scroll_bar {
     );
   }
   draw(x, h, y_min, y_max) {
+    this.update_pos(x, h, y_min, y_max);
+
+    // print(this.x);
+    // print(this.y);
+    // print(this.w);
+    // print(this.h);
+
+    let hover = int(this.detect_colision(mouseX, mouseY));
+    // print(hover)
+
     strokeWeight(4);
-    stroke(color_pallet[1] * 3, 55);
+    stroke(color_pallet[1] * 3 + 0, 55);
     fill(0, 0);
     rectMode(CORNER);
-    this.update_pos(x, h, y_min, y_max);
+
     rect(this.x, this.y, this.w, this.h, 20);
   }
   detect_colision(x, y) {
     this.update_pos();
     let offset = 4;
-    if (this.x - offset <= x && x <= this.x2 + offset) {
-      if (this.y1 - offset <= y && y <= this.y2 + offset) {
+    if (this.x <= x && x <= this.x + this.w) {
+      if (this.y <= y && y <= this.y + this.h) {
         return true;
       }
     }
     return false;
+  }
+  mousePressed(x, y) {
+    this.dragging = this.detect_colision(x, y);
+    this.dragging_pos = y;
+  }
+  mouseDragged(x, y) {
+    if (this.dragging) {
+      let distance_moved = y - dragging;
+      this.dragging_pos = y;
+      this.scroll_anim_start = 0;
+      this.scrolle = y * (this.scroll_pages - 1);
+      this.scrolle = min(max(this.scrolle, 0), this.scroll_max);
+    }
+  }
+
+  mouseReleased() {
+    this.dragging = false;
   }
   update_scroll() {
     function easeOutBack(x) {
