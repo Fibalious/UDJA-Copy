@@ -21,8 +21,6 @@ class EvidenceChart {
     this.boundry_offset = 8;
 
     this.entries = [new AddEntry()];
-    this.entries = insert(this.entries, 0, new Entry());
-    this.entries[0].attributes = [new Entry_MetaData()];
 
     this.scroll_bar = new Scroll_bar();
   }
@@ -122,9 +120,32 @@ class EvidenceChart {
   }
   mouseDragged(x, y) {
     this.scroll_bar.mouseDragged(x, y);
+    for (let entry of this.entries) {
+      entry.mouseDragged(x, y);
+    }
   }
   mouseReleased() {
-    this.scroll_bar.mouseReleased(x, y);
+    this.scroll_bar.mouseReleased();
+    for (let entry of this.entries) {
+      entry.mouseReleased();
+    }
+  }
+  keyTyped(output) {
+    for (let entry of evidence_chart.entries) {
+      entry.typing(output);
+    }
+  }
+
+  keyPressed(keyCode) {
+    for (let entry of evidence_chart.entries) {
+      entry.keyPressed(keyCode);
+    }
+  }
+
+  keyReleased(keyCode) {
+    for (let entry of evidence_chart.entries) {
+      entry.keyReleased(keyCode);
+    }
   }
   draw() {
     let y_offset = this.y - this.scroll_bar.scroll;
@@ -322,11 +343,12 @@ class Entry {
     }
   }
   draw() {
+    this.draw_outline();
+    this.h = this.draw_text().new_h;
+
     for (let e of this.attributes) {
       e.draw();
     }
-    this.draw_outline();
-    this.h = this.draw_text().new_h;
 
     let res = new Object();
     res.y_end = this.y + this.h + 8;
@@ -358,6 +380,19 @@ class Entry {
     this.selected = false;
     if (this.detect_inside(x, y)) {
       this.text_update_cords = [true, x, y];
+    }
+    for (let e of this.attributes) {
+      e.mousePressed(x, y);
+    }
+  }
+  mouseDragged(x, y) {
+    for (let e of this.attributes) {
+      e.mouseDragged(x, y);
+    }
+  }
+  mouseReleased() {
+    for (let e of this.attributes) {
+      e.mouseReleased();
     }
   }
   mousePressed_part2(x, y) {
@@ -446,7 +481,6 @@ class Entry {
     return res;
   }
 }
-
 class AddEntry {
   constructor() {
     this.x = 0;
@@ -473,6 +507,8 @@ class AddEntry {
       evidence_chart.new_entry();
     }
   }
+  mouseDragged() {}
+  mouseReleased() {}
   mousePressed_part2() {}
   typing() {}
   typing_del() {}
@@ -499,56 +535,6 @@ class AddEntry {
     let res = new Object();
     res.y_end = this.y + this.text_size + 8;
     return res;
-  }
-}
-
-class Entry_MetaData {
-  constructor() {
-    this.x = 1400;
-    this.y = 250;
-    this.w = 0;
-    this.h = 0;
-
-    this.text_size = 25;
-
-    this.attribute = "Te";
-  }
-  draw() {
-    this.update();
-    this.draw_outline();
-    this.draw_text();
-  }
-  draw_outline() {
-    strokeWeight(2);
-    stroke(color_pallet[1] - 50);
-    if (dark_mode) {
-      fill(bg * 0.75, 255);
-    } else {
-      fill(bg + 30, 255);
-    }
-    rectMode(CORNER);
-    rect(this.x, this.y, this.w, this.h, 7);
-  }
-  draw_text() {
-    noStroke();
-    if (dark_mode) {
-      fill(155);
-    } else {
-      fill(155);
-    }
-    textAlign(LEFT, TOP);
-    textFont("Impact");
-
-    let x = this.x + 8;
-    let y = this.y + 8;
-
-    text(this.attribute, x, y);
-  }
-  update() {
-    textFont("Impact");
-    textSize(this.text_size);
-    this.w = 8 + textWidth(this.attribute) + 8;
-    this.h = this.text_size + 8 * 2;
   }
 }
 

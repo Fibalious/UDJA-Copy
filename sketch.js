@@ -1,4 +1,5 @@
 let mobile_aspect_ratio = 1.4;
+mobile_aspect_ratio = 0;
 let mobile_mode = 0;
 
 let loading = true;
@@ -17,6 +18,7 @@ function setup() {
   scroll_bar = new Scroll_bar();
   udjatest = new UDJATest();
   evidence_chart = new EvidenceChart();
+  add_atributes_menu = new AddAtributesMenu();
 
   let canvas = createCanvas(windowWidth, windowHeight);
   canvas.attribute("contenteditable", "true");
@@ -31,6 +33,7 @@ function setup() {
 
   udjatest.update_positions();
   evidence_chart.update_positions();
+  add_atributes_menu.update_positions();
 }
 
 function draw() {
@@ -54,6 +57,7 @@ function draw() {
     loading = 1;
     udjatest.update_positions();
     evidence_chart.update_positions();
+    add_atributes_menu.update_positions();
   }
 
   if (loading > 0) {
@@ -85,6 +89,9 @@ function draw() {
     evidence_chart.update(scroll_bar.scroll);
     evidence_chart.draw();
 
+    // add_atributes_menu.update(scroll_bar.scroll);
+    // add_atributes_menu.draw();
+
     udjatest.update(scroll_bar.scroll);
     udjatest.draw();
 
@@ -109,6 +116,7 @@ function windowResized() {
   }
   udjatest.update_positions();
   evidence_chart.update_positions();
+  add_atributes_menu.update_positions();
 }
 
 function keyTyped() {
@@ -119,27 +127,19 @@ function keyTyped() {
       break;
     case BACKSPACE:
   }
-  for (let entry of evidence_chart.entries) {
-    entry.typing(output);
-  }
+  evidence_chart.keyTyped(output);
 }
 
 function keyPressed() {
-  for (let entry of evidence_chart.entries) {
-    entry.keyPressed(keyCode);
-  }
+  evidence_chart.keyPressed(keyCode);
 }
 
 function keyReleased() {
-  for (let entry of evidence_chart.entries) {
-    entry.keyReleased(keyCode);
-  }
+  evidence_chart.keyReleased(keyCode);
 }
 
 function paste(e) {
-  for (let entry of evidence_chart.entries) {
-    entry.paste(e);
-  }
+  evidence_chart.paste(e);
 }
 
 function mouseWheel(event) {
@@ -152,7 +152,7 @@ function mouseWheel(event) {
 
 function mousePressed() {
   if (mouseX < 50 && mouseY < 50) {
-    fullscreen(!fullscreen());
+    // fullscreen(!fullscreen());
   }
   scroll_bar.mousePressed(mouseX, mouseY);
   if (!scroll_bar.scroll_scrolling) {
@@ -160,16 +160,19 @@ function mousePressed() {
   }
   udjatest.mousePressed(mouseX, mouseY);
   evidence_chart.mousePressed(mouseX, mouseY);
+  add_atributes_menu.mousePressed(mouseX, mouseY);
 }
 
 function mouseDragged() {
   scroll_bar.mouseDragged(mouseX, mouseY);
-  evidence_chart.scroll_bar.mouseDragged(mouseX, mouseY);
+  evidence_chart.mouseDragged(mouseX, mouseY);
+  add_atributes_menu.mouseDragged(mouseX, mouseY);
 }
 
 function mouseReleased() {
   scroll_bar.mouseReleased();
-  evidence_chart.scroll_bar.mouseReleased();
+  evidence_chart.mouseReleased();
+  add_atributes_menu.mouseReleased();
 }
 
 function update_color_palette(update = false) {
