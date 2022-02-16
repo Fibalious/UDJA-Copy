@@ -87,11 +87,11 @@ function draw() {
     evidence_chart.update(scroll_bar.scroll);
     evidence_chart.draw();
 
-    add_atributes_menu.update(scroll_bar.scroll);
-    add_atributes_menu.draw();
+    // add_atributes_menu.update(scroll_bar.scroll);
+    // add_atributes_menu.draw();
 
-    // udjatest.update(scroll_bar.scroll);
-    // udjatest.draw();
+    udjatest.update(scroll_bar.scroll);
+    udjatest.draw();
 
     if (mobile_mode) {
       scroll_bar.draw(windowWidth, windowHeight / 20, 0, windowHeight);
