@@ -121,7 +121,11 @@ function keyTyped() {
   let output = key;
   switch (key) {
     case "Enter":
-      output = "\n";
+      if (keyIsDown(SHIFT)) {
+        output = "\n";
+      } else {
+        output = "";
+      }
       break;
     case BACKSPACE:
   }

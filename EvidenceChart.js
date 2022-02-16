@@ -140,6 +140,45 @@ class EvidenceChart {
     for (let entry of evidence_chart.entries) {
       entry.keyPressed(keyCode);
     }
+    switch (keyCode) {
+      case DOWN_ARROW:
+        if (keyIsDown(CONTROL)) {
+          let target = 99999;
+          for (let e in evidence_chart.entries) {
+            if (evidence_chart.entries[e].selected) {
+              target = int(e) + 1;
+            }
+          }
+          let length = evidence_chart.entries.length - 2;
+          print(target);
+          print(length);
+          if (target <= length) {
+            for (let e of evidence_chart.entries) {
+              e.selected = false;
+            }
+            evidence_chart.entries[target].selected = true;
+            evidence_chart.entries[target].mousePressed_part2(9999, 9999);
+          }
+        }
+        break;
+      case UP_ARROW:
+        if (keyIsDown(CONTROL)) {
+          let target = 99999;
+          for (let e in evidence_chart.entries) {
+            if (evidence_chart.entries[e].selected) {
+              target = int(e) - 1;
+            }
+          }
+          if (target >= 0) {
+            for (let e of evidence_chart.entries) {
+              e.selected = false;
+            }
+            evidence_chart.entries[target].selected = true;
+            evidence_chart.entries[target].mousePressed_part2(9999, 9999);
+          }
+        }
+        break;
+    }
   }
 
   keyReleased(keyCode) {
@@ -287,44 +326,56 @@ class Entry {
     }
   }
   keyPressed(keyCode) {
-    let entry_length = this.text_char_cords[this.text_char_cords.length - 1];
-    entry_length = entry_length[entry_length.length - 1];
+    if (this.selected) {
+      let entry_length = this.text_char_cords[this.text_char_cords.length - 1];
+      entry_length = entry_length[entry_length.length - 1];
 
-    switch (keyCode) {
-      case BACKSPACE:
-        this.left_arrow.state = false;
-        this.right_arrow.state = false;
+      switch (keyCode) {
+        case BACKSPACE:
+          this.left_arrow.state = false;
+          this.right_arrow.state = false;
 
-        this.typing_del();
-        this.delete.state = true;
-        this.delete.start = Date.now();
-        break;
-      case ESCAPE:
-        this.selected = 0;
-        break;
-      case LEFT_ARROW:
-        this.right_arrow.state = false;
+          this.typing_del();
+          this.delete.state = true;
+          this.delete.start = Date.now();
+          break;
+        case ESCAPE:
+          this.selected = 0;
+          break;
+        case LEFT_ARROW:
+          this.right_arrow.state = false;
 
-        this.left_arrow.state = true;
-        this.left_arrow.start = Date.now();
+          this.left_arrow.state = true;
+          this.left_arrow.start = Date.now();
 
-        this.selected_pos--;
-        this.selected_pos = minmax(this.selected_pos, 0, entry_length);
-        break;
-      case RIGHT_ARROW:
-        this.left_arrow.state = false;
+          this.selected_pos--;
+          this.selected_pos = minmax(this.selected_pos, 0, entry_length);
+          break;
+        case RIGHT_ARROW:
+          this.left_arrow.state = false;
 
-        this.right_arrow.state = true;
-        this.right_arrow.start = Date.now();
+          this.right_arrow.state = true;
+          this.right_arrow.start = Date.now();
 
-        this.selected_pos++;
-        this.selected_pos = minmax(this.selected_pos, 0, entry_length);
-        break;
-      case 67:
-        if (this.selected && keyIsDown(CONTROL)) {
-          copyToClipboard(this.entry);
-        }
-        break;
+          this.selected_pos++;
+          this.selected_pos = minmax(this.selected_pos, 0, entry_length);
+          break;
+        case ENTER:
+          if (!keyIsDown(SHIFT)) {
+            evidence_chart.new_entry();
+            for (let e of evidence_chart.entries) {
+              e.selected = false;
+            }
+            let len = evidence_chart.entries.length;
+            evidence_chart.entries[len - 2].selected = true;
+          }
+          break;
+        case 67:
+          if (this.selected && keyIsDown(CONTROL)) {
+            copyToClipboard(this.entry);
+          }
+          break;
+      }
     }
   }
   keyReleased(keyCode) {
@@ -408,6 +459,8 @@ class Entry {
     points.sort((a, b) => a - b);
     let point = points.findIndex((element) => element == x);
     this.selected_pos = this.text_char_cords[row][2][point];
+    this.blink.state = true;
+    this.blink.start = Date.now();
   }
   draw_text() {
     noStroke();
