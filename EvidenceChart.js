@@ -99,7 +99,7 @@ class EvidenceChart {
       this.h = this.he;
     }
   }
-  detect_inside(x, y) {
+  detect_inside(x = mouseX, y = mouseY) {
     if (
       this.x <= x &&
       x <= this.x + this.w &&
@@ -232,6 +232,9 @@ class Entry {
   update() {
     for (let e of this.attributes) {
       e.text_size = this.text_size;
+      if (e.self_destruct) {
+        this.attributes = removeA(this.attributes, e);
+      }
     }
     if (this.text_update_cords[0] == 2) {
       this.mousePressed_part2(
@@ -365,7 +368,7 @@ class Entry {
     rectMode(CORNER);
     rect(this.x, this.y, this.w, this.h, 7);
   }
-  detect_inside(x, y) {
+  detect_inside(x = mouseX, y = mouseY) {
     if (
       this.x <= x &&
       x <= this.x + this.w &&
@@ -392,7 +395,7 @@ class Entry {
   }
   mouseReleased() {
     for (let e of this.attributes) {
-      e.mouseReleased();
+      e.mouseReleased(1);
     }
   }
   mousePressed_part2(x, y) {
@@ -474,7 +477,6 @@ class Entry {
     }
     if (this.text_update_cords[0] == true) {
       this.text_update_cords[0] = 2;
-      print(this.text_char_cords);
     }
     let res = new Object();
     res.new_h = this.text_size + y_offset + 8;
@@ -491,7 +493,7 @@ class AddEntry {
     this.text_size = 25;
   }
   update() {}
-  detect_inside(x, y) {
+  detect_inside(x = mouseX, y = mouseY) {
     if (
       this.x <= x &&
       x <= this.x + this.w &&
@@ -544,3 +546,17 @@ const insert = (arr, index, newItem) => [
   ...arr.slice(index),
 ];
 const minmax = (x, mi, ma) => min(max(x, mi), ma);
+
+function removeA(arr) {
+  var what,
+    a = arguments,
+    L = a.length,
+    ax;
+  while (L > 1 && arr.length) {
+    what = a[--L];
+    while ((ax = arr.indexOf(what)) !== -1) {
+      arr.splice(ax, 1);
+    }
+  }
+  return arr;
+}

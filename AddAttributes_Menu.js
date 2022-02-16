@@ -30,8 +30,37 @@ class AddAtributesMenu {
     this.attributes = [];
 
     this.attributes.push(new Entry_MetaData("Si", 0, 0));
+    this.attributes.push(new Entry_MetaData("Se", 30, 0));
+    this.attributes.push(new Entry_MetaData("Ni", 0, 7));
+    this.attributes.push(new Entry_MetaData("Ne", 30, 7));
 
-    this.attributes.push(new Entry_MetaData("Se", 0.3, 0));
+    this.attributes.push(new Entry_MetaData("Ti", 70, 0));
+    this.attributes.push(new Entry_MetaData("Te", 100, 0));
+    this.attributes.push(new Entry_MetaData("Fi", 70, 7));
+    this.attributes.push(new Entry_MetaData("Fe", 100, 7));
+
+    this.attributes.push(new Entry_MetaData("Direct", 0, 15));
+    this.attributes.push(new Entry_MetaData("Inform", 0, 21));
+
+    this.attributes.push(new Entry_MetaData("Affiliatve", 100, 15));
+    this.attributes.push(new Entry_MetaData("Pragmative", 100, 21));
+
+    this.attributes.push(new Entry_MetaData("Progress", 0, 30));
+    this.attributes.push(new Entry_MetaData("Outcome", 0, 37));
+
+    this.attributes.push(new Entry_MetaData("System", 100, 30));
+    this.attributes.push(new Entry_MetaData("Interest", 100, 37));
+
+    this.attributes.push(new Entry_MetaData("Initiate", 0, 45));
+    this.attributes.push(new Entry_MetaData("Respond", 0, 51));
+
+    this.attributes.push(new Entry_MetaData("Abstract", 100, 45));
+    this.attributes.push(new Entry_MetaData("Concrete", 100, 51));
+
+    this.attributes.push(new Entry_MetaData("Soul", 0, 60));
+    this.attributes.push(new Entry_MetaData("Body", 0, 67));
+    this.attributes.push(new Entry_MetaData("Heart", 100, 60));
+    this.attributes.push(new Entry_MetaData("Mind", 100, 67));
   }
   update(scroll = 0) {
     function ParametricBlend(t) {
@@ -55,10 +84,12 @@ class AddAtributesMenu {
       this.anim_start = Date.now();
     }
 
+    textFont("Impact");
+    textSize(this.text_size);
     for (let e of this.attributes) {
       if (!e.dragging) {
-        e.x = this.x + this.w * e.xp;
-        e.y = this.y + this.h * e.yp;
+        e.x = this.x + ((this.w - e.w) * e.xp) / 100;
+        e.y = this.y + ((this.h - e.h) * e.yp) / 100;
       }
     }
   }
@@ -154,6 +185,8 @@ class Entry_MetaData {
 
     this.dragging = false;
     this.dragging_offset = [0, 0];
+
+    this.self_destruct = false;
   }
   draw() {
     this.update();
@@ -213,7 +246,55 @@ class Entry_MetaData {
       this.y = y - this.dragging_offset[1];
     }
   }
-  mouseReleased() {
+  mouseReleased(state = 0) {
+    if (this.dragging) {
+      let inside_row = false;
+      for (let e of evidence_chart.entries) {
+        if (e.detect_inside()) {
+          inside_row = true;
+          switch (state) {
+            case 0:
+              let copy = structuredClone(this);
+              e.attributes.push(copy);
+              break;
+          }
+        }
+      }
+      if (!inside_row && state == 1) {
+        this.self_destruct = true;
+      }
+    }
     this.dragging = false;
   }
+}
+
+function structuredClone(obj) {
+  obj = obj && obj instanceof Object ? obj : "";
+
+  // Handle Date (return new Date object with old value)
+  if (obj instanceof Date) {
+    return new Date(obj);
+  }
+
+  // Handle Array (return a full slice of the array)
+  if (obj instanceof Array) {
+    return obj.slice();
+  }
+
+  // Handle Object
+  if (obj instanceof Object) {
+    var copy = new obj.constructor();
+    for (var attr in obj) {
+      if (obj.hasOwnProperty(attr)) {
+        if (obj[attr] instanceof Object) {
+          copy[attr] = structuredClone(obj[attr]);
+        } else {
+          copy[attr] = obj[attr];
+        }
+      }
+    }
+    return copy;
+  }
+
+  throw new Error("Unable to copy obj! Its type isn't supported.");
 }
