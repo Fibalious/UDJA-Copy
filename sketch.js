@@ -1,5 +1,5 @@
-let mobile_aspect_ratio = 1.4;
-mobile_aspect_ratio = 0;
+let mobile_aspect_ratio = 1.2;
+// mobile_aspect_ratio = 0;
 let mobile_mode = 0;
 
 let loading = true;
@@ -69,14 +69,12 @@ function draw() {
     );
     rotate(angle);
     strokeWeight(4);
-    stroke(255);
-    line(0, 0, 100, 0);
-    rotate(-angle + angle / 12);
-    line(0, 0, 75, 0);
-    strokeWeight(4);
-    stroke(255);
+    stroke(color_pallet[1]);
     noFill();
-    circle(0, 0, 120 * 2);
+    circle(0, 0, 50 * 2);
+    noStroke();
+    fill(bg, 255);
+    rect(0, 0, 500, 500);
     pop();
     angle = angle + 0.12;
     if (typeof loading != "boolean") {
