@@ -192,6 +192,9 @@ class EvidenceChart {
       entry.y = y_offset;
       y_offset = entry.draw().y_end;
     }
+    for (let entry of this.entries) {
+      entry.draw_attributes();
+    }
     this.scroll_bar.scroll_max = max(y_offset, this.h);
     this.scroll_bar.update_scroll();
 
@@ -270,7 +273,7 @@ class Entry {
   }
   update() {
     for (let e of this.attributes) {
-      e.text_size = this.text_size;
+      e.text_size_e = this.text_size;
       if (e.self_destruct) {
         this.attributes = removeA(this.attributes, e);
       }
@@ -400,13 +403,21 @@ class Entry {
     this.draw_outline();
     this.h = this.draw_text().new_h;
 
-    for (let e of this.attributes) {
-      e.draw();
-    }
-
     let res = new Object();
     res.y_end = this.y + this.h + 8;
     return res;
+  }
+  draw_attributes() {
+    let x_offset = 0;
+    let y_offset = 0;
+    for (let e of this.attributes) {
+      x_offset += e.w;
+      if (!e.dragging) {
+        e.xe = this.x + this.w - x_offset;
+        e.ye = this.y - y_offset;
+      }
+      e.draw();
+    }
   }
   draw_outline() {
     strokeWeight(2);
@@ -591,6 +602,7 @@ class AddEntry {
     res.y_end = this.y + this.text_size + 8;
     return res;
   }
+  draw_attributes() {}
 }
 
 const insert = (arr, index, newItem) => [

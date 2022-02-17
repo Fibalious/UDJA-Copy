@@ -88,8 +88,8 @@ class AddAtributesMenu {
     textSize(this.text_size);
     for (let e of this.attributes) {
       if (!e.dragging) {
-        e.x = this.x + ((this.w - e.w) * e.xp) / 100;
-        e.y = this.y + ((this.h - e.h) * e.yp) / 100;
+        e.xe = this.x + ((this.w - e.w) * e.xp) / 100;
+        e.ye = this.y + ((this.h - e.h) * e.yp) / 100;
       }
     }
   }
@@ -176,10 +176,25 @@ class Entry_MetaData {
     this.w = 0;
     this.h = 0;
 
+    this.xs = 0;
+    this.ys = 0;
+    this.ws = 0;
+    this.hs = 0;
+
+    this.xe = 0;
+    this.ye = 0;
+    this.we = 0;
+    this.he = 0;
+
     this.xp = xp;
     this.yp = yp;
 
-    this.text_size = 25;
+    this.text_size = 0;
+    this.text_size_s = 0;
+    this.text_size_e = 25;
+
+    this.anim_speed = 250;
+    this.anim_start = Date.now();
 
     this.attribute = str(data);
 
@@ -222,8 +237,35 @@ class Entry_MetaData {
   update() {
     textFont("Impact");
     textSize(this.text_size);
-    this.w = 8 + textWidth(this.attribute) + 8;
-    this.h = this.text_size + 8 * 2;
+    this.we = 8 + textWidth(this.attribute) + 8;
+    this.he = this.text_size + 8 * 2;
+
+    function ParametricBlend(t) {
+      let sqt = t * t;
+      return sqt / (2.0 * (sqt - t) + 1.0);
+    }
+
+    let c = (Date.now() - this.anim_start) / this.anim_speed;
+    c = minmax(c, 0, 1);
+    c = ParametricBlend(c);
+    let c2 = 1 - c;
+
+    this.x = this.xs * c2 + this.xe * c;
+    this.y = this.ys * c2 + this.ye * c;
+    this.w = this.ws * c2 + this.we * c;
+    this.h = this.hs * c2 + this.he * c;
+    this.text_size = this.text_size_s * c2 + this.text_size_e * c;
+  }
+  update_positions(x, y, w, h) {
+    this.xs = this.x;
+    this.ys = this.y;
+    this.ws = this.w;
+    this.hs = this.h;
+
+    this.xe = x;
+    this.ye = y;
+    this.we = w;
+    this.he = h;
   }
   detect_inside(x, y) {
     if (
@@ -238,12 +280,13 @@ class Entry_MetaData {
   }
   mousePressed(x, y) {
     this.dragging = this.detect_inside(x, y);
+    this.anim_start = this.anim_start * (1 - this.dragging);
     this.dragging_offset = [x - this.x, y - this.y];
   }
   mouseDragged(x, y) {
     if (this.dragging) {
-      this.x = x - this.dragging_offset[0];
-      this.y = y - this.dragging_offset[1];
+      this.xe = x - this.dragging_offset[0];
+      this.ye = y - this.dragging_offset[1];
     }
   }
   mouseReleased(state = 0) {
@@ -265,6 +308,12 @@ class Entry_MetaData {
       }
     }
     this.dragging = false;
+    this.anim_start = Date.now();
+    this.xs = this.x;
+    this.ys = this.y;
+    this.ws = this.w;
+    this.hs = this.h;
+    this.text_size_s = this.text_size;
   }
 }
 
