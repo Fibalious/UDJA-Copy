@@ -6,11 +6,12 @@ let loading = true;
 let angle = 0;
 let bg = 0;
 let date = new Date();
+var dropzone;
 
 let pasted_clipboard = null;
 
 let debug = false;
-// debug = true;
+debug = true;
 
 dark_mode = 1;
 
@@ -21,6 +22,7 @@ function setup() {
   add_atributes_menu = new AddAtributesMenu();
 
   let canvas = createCanvas(windowWidth, windowHeight);
+  canvas.drop(gotFile);
   canvas.attribute("contenteditable", "true");
   canvas.elt.addEventListener("paste", (e) => {
     paste(e.clipboardData.getData("text"));
@@ -53,7 +55,7 @@ function draw() {
     color_pallet[0][1]
   );
   background(bg);
-  if (Date.now() - date > 2000 && typeof loading == "boolean") {
+  if (Date.now() - date > 0 && typeof loading == "boolean") {
     loading = 1;
     udjatest.update_positions();
     evidence_chart.update_positions();
@@ -87,11 +89,15 @@ function draw() {
     evidence_chart.update(scroll_bar.scroll);
     evidence_chart.draw();
 
-    // add_atributes_menu.update(scroll_bar.scroll);
-    // add_atributes_menu.draw();
-
-    udjatest.update(scroll_bar.scroll);
-    udjatest.draw();
+    let t = true;
+    t = false;
+    if (t) {
+      add_atributes_menu.update(scroll_bar.scroll);
+      add_atributes_menu.draw();
+    } else {
+      udjatest.update(scroll_bar.scroll);
+      udjatest.draw();
+    }
 
     if (mobile_mode) {
       scroll_bar.draw(windowWidth, windowHeight / 20, 0, windowHeight);
@@ -202,4 +208,44 @@ function isMobileDevice() {
     typeof window.orientation !== "undefined" ||
     navigator.userAgent.indexOf("IEMobile") !== -1
   );
+}
+
+function download(filename, text) {
+  var pom = document.createElement("a");
+  pom.setAttribute(
+    "href",
+    "data:text/plain;charset=utf-8," + encodeURIComponent(text)
+  );
+  pom.setAttribute("download", filename);
+
+  if (document.createEvent) {
+    var event = document.createEvent("MouseEvents");
+    event.initEvent("click", true, true);
+    pom.dispatchEvent(event);
+  } else {
+    pom.click();
+  }
+}
+
+function gotFile(file) {
+  data = LJSON.parse(file.data);
+
+  evidence_chart.entries = [new AddEntry(), new Save()];
+
+  for (e of data.entries) {
+    if (typeof e.entry == typeof "y") {
+      evidence_chart.new_entry(e.entry);
+    }
+  }
+  for (e of data.udjatest.buttons) {
+    for (i of udjatest.buttons) {
+      print(i.col == e.col)
+      print(e.row == e.row)
+      print(' - ')
+      if (i.col == e.col && i.row == e.row) {
+        i.reset();
+        i.outpute = e.outpute;
+      }
+    }
+  }
 }

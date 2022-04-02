@@ -621,7 +621,7 @@ class UDJATest {
         e.reset();
         this.type_opacity_animation();
       }
-      evidence_chart.entries = [new AddEntry()];
+      evidence_chart.entries = [new AddEntry(), new Save()];
     }
   }
   type_opacity_animation() {

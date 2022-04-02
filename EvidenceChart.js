@@ -20,7 +20,7 @@ class EvidenceChart {
 
     this.boundry_offset = 8;
 
-    this.entries = [new AddEntry()];
+    this.entries = [new AddEntry(), new Save()];
 
     this.scroll_bar = new Scroll_bar();
   }
@@ -219,13 +219,13 @@ class EvidenceChart {
       this.y + this.h
     );
   }
-  new_entry() {
-    this.entries = insert(this.entries, this.entries.length - 1, new Entry());
+  new_entry(text='') {
+    this.entries = insert(this.entries, this.entries.length - 2, new Entry(text));
   }
 }
 
 class Entry {
-  constructor() {
+  constructor(entry='') {
     this.x = 0;
     this.y = 0;
     this.w = 0;
@@ -269,7 +269,7 @@ class Entry {
       "- Selection, Such as Drag and also Ctrl+A\n" +
       "- Obviously complete the entire features for" +
       "adding and deleting entire rows and so on";
-    this.entry = "";
+    this.entry = entry;
   }
   update() {
     for (let e of this.attributes) {
@@ -593,6 +593,68 @@ class AddEntry {
     textSize(this.text_size);
 
     let txt = "+ Add Entry";
+    text(txt, this.x, this.y);
+
+    this.h = this.text_size;
+    this.w = textWidth(txt);
+
+    let res = new Object();
+    res.y_end = this.y + this.text_size + 8;
+    return res;
+  }
+  draw_attributes() {}
+}
+class Save {
+  constructor() {
+    this.x = 0;
+    this.y = 0;
+    this.w = 0;
+    this.h = 0;
+
+    this.text_size = 25;
+  }
+  update() {}
+  detect_inside(x = mouseX, y = mouseY) {
+    if (
+      this.x <= x &&
+      x <= this.x + this.w &&
+      this.y <= y &&
+      y <= this.y + this.h
+    ) {
+      return true;
+    }
+    return false;
+  }
+  mousePressed(x, y) {
+    if (this.detect_inside(x, y)) {
+      const data = new Object();
+      data.entries = evidence_chart.entries;
+      data.udjatest = udjatest;
+      var sus = LJSON.stringify(data)
+      print(sus)
+      download("test", sus);
+    }
+  }
+  mouseDragged() {}
+  mouseReleased() {}
+  mousePressed_part2() {}
+  typing() {}
+  typing_del() {}
+  keyPressed() {}
+  keyReleased() {}
+  paste(e) {}
+  draw() {
+    noStroke();
+    if (dark_mode) {
+      fill(155);
+    } else {
+      fill(155);
+    }
+    textAlign(LEFT, TOP);
+    textFont("Impact");
+    textSize(this.text_size);
+
+    let txt = "> Save";
     text(txt, this.x, this.y);
 
     this.h = this.text_size;
