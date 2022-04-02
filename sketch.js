@@ -11,7 +11,7 @@ var dropzone;
 let pasted_clipboard = null;
 
 let debug = false;
-debug = true;
+// debug = true;
 
 dark_mode = 1;
 
