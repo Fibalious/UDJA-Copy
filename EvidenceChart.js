@@ -632,7 +632,7 @@ class Save {
       data.udjatest = udjatest;
       var sus = LJSON.stringify(data)
       print(sus)
-      download("test", sus);
+      download("ENTER_NAME_HERE", sus);
     }
   }
   mouseDragged() {}
