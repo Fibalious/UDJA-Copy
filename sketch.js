@@ -23,6 +23,7 @@ function setup() {
   let canvas = createCanvas(windowWidth, windowHeight);
   canvas.drop(gotFile);
   canvas.attribute("contenteditable", "true");
+  canvas.attribute("type", "input");
   canvas.elt.addEventListener("paste", (e) => {
     paste(e.clipboardData.getData("text"));
   });
@@ -146,7 +147,6 @@ function keyReleased() {
   evidence_chart.keyReleased(keyCode);
   switch (keyCode) {
     case 83:
-      print("yay");
       if (keyIsDown(CONTROL)) {
         save_typing();
       }
