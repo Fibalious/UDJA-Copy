@@ -1,12 +1,11 @@
 let mobile_aspect_ratio = 1.2;
-// mobile_aspect_ratio = 0;
+mobile_aspect_ratio = 0;
 let mobile_mode = 0;
 
 let loading = true;
 let angle = 0;
 let bg = 0;
 let date = new Date();
-var dropzone;
 
 let pasted_clipboard = null;
 
@@ -27,6 +26,11 @@ function setup() {
   canvas.elt.addEventListener("paste", (e) => {
     paste(e.clipboardData.getData("text"));
   });
+  document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey) {
+      event.preventDefault();
+    }
+  });
   aspect_ratio = windowWidth / windowHeight;
   scroll_bar.scroll_max = 1 + windowHeight * (scroll_bar.scroll_pages - 1);
   mobile_mode = aspect_ratio < mobile_aspect_ratio;
@@ -39,10 +43,6 @@ function setup() {
 }
 
 function draw() {
-  if (pasted_clipboard != null) {
-    udjatest.types[0][0] = pasted_clipboard;
-    pasted_clipboard = null;
-  }
   scroll_bar.update_scroll();
 
   // udjatest.types[0][0] = isMobileDevice();
@@ -144,10 +144,18 @@ function keyPressed() {
 
 function keyReleased() {
   evidence_chart.keyReleased(keyCode);
+  switch (keyCode) {
+    case 83:
+      print("yay");
+      if (keyIsDown(CONTROL)) {
+        save_typing();
+      }
+      break;
+  }
 }
-
 function paste(e) {
   evidence_chart.paste(e);
+  print(e);
 }
 
 function mouseWheel(event) {
@@ -230,22 +238,39 @@ function download(filename, text) {
 function gotFile(file) {
   data = LJSON.parse(file.data);
 
-  evidence_chart.entries = [new AddEntry(), new Save()];
+  evidence_chart.entries = [new Title(), new AddEntry()];
 
   for (e of data.entries) {
     if (typeof e.entry == typeof "y") {
-      evidence_chart.new_entry(e.entry);
+      if (e == data.entries[0]) {
+        evidence_chart.entries[0].entry = e.entry;
+      } else {
+        evidence_chart.new_entry(e.entry);
+      }
     }
   }
   for (e of data.udjatest.buttons) {
     for (i of udjatest.buttons) {
-      print(i.col == e.col)
-      print(e.row == e.row)
-      print(' - ')
+      print(i.col == e.col);
+      print(e.row == e.row);
+      print(" - ");
       if (i.col == e.col && i.row == e.row) {
         i.reset();
         i.outpute = e.outpute;
       }
     }
   }
+}
+
+function save_typing() {
+  const data = new Object();
+  data.entries = evidence_chart.entries;
+  data.udjatest = udjatest;
+  var sus = LJSON.stringify(data);
+  let title_txt = evidence_chart.entries[0].entry.trim();
+  print(title_txt);
+  if (title_txt == "") {
+    title_txt = "ENTER_NAME_HERE";
+  }
+  download(title_txt, sus);
 }

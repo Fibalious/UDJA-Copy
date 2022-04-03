@@ -323,7 +323,7 @@ class UDJATest {
       }
     }
 
-    // Submit and Reset Button
+    // Save and Reset Button
     width = (this.w - this.boundry_offset * 4 * 3) / 2;
     height = this.h * (85 / 1058);
     let y2 =
@@ -363,11 +363,11 @@ class UDJATest {
     textAlign(CENTER, CENTER);
     textSize(min(height * 0.5, width / 10));
     textFont("Impact");
-    // text(
-    //   'Submit',
-    //   this.x + width / 2 + this.boundry_offset * 4,
-    //   this.y + this.h - height / 2
-    // );
+    text(
+      "Save",
+      this.x + width / 2 + this.boundry_offset * 4,
+      this.y + this.h - height / 2
+    );
     text(
       "Reset",
       this.x + width * 1.5 + this.boundry_offset * 8,
@@ -601,7 +601,7 @@ class UDJATest {
       }
     }
 
-    // Submit and Reset Button
+    // Save and Reset Button
     width = (this.w - this.boundry_offset * 4 * 3) / 2;
     height = this.h * (85 / 1058);
     y2 = this.y + 4 * (height + this.boundry_offset) + this.boundry_offset * 3;
@@ -611,7 +611,8 @@ class UDJATest {
     let x_obj = this.x + this.boundry_offset * 4;
     let y_obj = this.y + this.h - height;
     if (x_obj <= x && x <= x_obj + width && y_obj <= y && y <= y_obj + height) {
-      // This is where Submit stuff will go
+      // This is where Save stuff will go
+      save_typing();
     }
 
     x_obj = this.x + width + this.boundry_offset * 8;
@@ -621,7 +622,7 @@ class UDJATest {
         e.reset();
         this.type_opacity_animation();
       }
-      evidence_chart.entries = [new AddEntry(), new Save()];
+      evidence_chart.entries = [new Title(), new AddEntry()];
     }
   }
   type_opacity_animation() {

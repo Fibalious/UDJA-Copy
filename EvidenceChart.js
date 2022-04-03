@@ -20,7 +20,7 @@ class EvidenceChart {
 
     this.boundry_offset = 8;
 
-    this.entries = [new AddEntry(), new Save()];
+    this.entries = [new Title(), new AddEntry()];
 
     this.scroll_bar = new Scroll_bar();
   }
@@ -50,7 +50,7 @@ class EvidenceChart {
       entry.x = this.x;
       entry.y = this.y;
       entry.w = this.w - 20;
-      entry.text_size = minmax(this.h / 20, 0, 25);
+      entry.text_size = minmax(this.h / 35, 0, 25);
       entry.update();
     }
   }
@@ -135,6 +135,11 @@ class EvidenceChart {
       entry.typing(output);
     }
   }
+  paste(e) {
+    for (let entry of evidence_chart.entries) {
+      entry.paste(e);
+    }
+  }
 
   keyPressed(keyCode) {
     for (let entry of evidence_chart.entries) {
@@ -149,7 +154,7 @@ class EvidenceChart {
               target = int(e) + 1;
             }
           }
-          let length = evidence_chart.entries.length - 2;
+          let length = evidence_chart.entries.length - 1;
           print(target);
           print(length);
           if (target <= length) {
@@ -195,7 +200,7 @@ class EvidenceChart {
     for (let entry of this.entries) {
       entry.draw_attributes();
     }
-    this.scroll_bar.scroll_max = max(y_offset, this.h);
+    this.scroll_bar.scroll_max = max(y_offset + this.scroll_bar.scroll - this.h, 0);
     this.scroll_bar.update_scroll();
 
     noStroke();
@@ -219,13 +224,17 @@ class EvidenceChart {
       this.y + this.h
     );
   }
-  new_entry(text='') {
-    this.entries = insert(this.entries, this.entries.length - 2, new Entry(text));
+  new_entry(text = "") {
+    this.entries = insert(
+      this.entries,
+      this.entries.length - 1,
+      new Entry(text)
+    );
   }
 }
 
 class Entry {
-  constructor(entry='') {
+  constructor(entry = "") {
     this.x = 0;
     this.y = 0;
     this.w = 0;
@@ -373,6 +382,11 @@ class Entry {
             evidence_chart.entries[len - 2].selected = true;
           }
           break;
+        case 46:
+          if (keyIsDown(CONTROL)) {
+            evidence_chart.entries = removeA(evidence_chart.entries, this)
+          }
+          break;
         case 67:
           if (this.selected && keyIsDown(CONTROL)) {
             copyToClipboard(this.entry);
@@ -395,6 +409,7 @@ class Entry {
     }
   }
   paste(e) {
+    print(this.selected)
     if (this.selected) {
       this.typing(e);
     }
@@ -547,6 +562,337 @@ class Entry {
     return res;
   }
 }
+class Title {
+  constructor(entry = "") {
+    this.x = 0;
+    this.y = 0;
+    this.w = 0;
+    this.h = 0;
+
+    this.attributes = [];
+
+    this.selected = false;
+    this.selected_pos = 5;
+    this.selected_pos2 = 5;
+
+    this.blink = new Object();
+    this.blink.state = false;
+    this.blink.start = Date.now();
+
+    this.delete = new Object();
+    this.delete.state = false;
+    this.delete.start = Date.now();
+
+    this.left_arrow = new Object();
+    this.left_arrow.state = false;
+    this.left_arrow.start = Date.now();
+
+    this.right_arrow = new Object();
+    this.right_arrow.state = false;
+    this.right_arrow.start = Date.now();
+
+    this.text_update_cords = [false, 0, 0];
+    this.text_size = 25;
+    this.text_char_cords = [[0, [0], [0]]];
+
+    this.entry =
+      "Hey there! You're here early.\n" +
+      "\n" +
+      "I have been working on getting this text box working, " +
+      "here is your testing area!\n" +
+      "\n" +
+      "Current TODO List:\n" +
+      "- Add the functionality to adapt the entire hitbox based " +
+      "on the number of entries added\n" +
+      "- Selection, Such as Drag and also Ctrl+A\n" +
+      "- Obviously complete the entire features for" +
+      "adding and deleting entire rows and so on";
+    this.entry = entry;
+  }
+  update() {
+    for (let e of this.attributes) {
+      e.text_size_e = this.text_size;
+      if (e.self_destruct) {
+        this.attributes = removeA(this.attributes, e);
+      }
+    }
+    if (this.text_update_cords[0] == 2) {
+      this.mousePressed_part2(
+        this.text_update_cords[1],
+        this.text_update_cords[2]
+      );
+      this.text_update_cords[0] = false;
+    }
+    let entry_length = this.text_char_cords[this.text_char_cords.length - 1];
+    entry_length = entry_length[2][entry_length.length - 1];
+
+    if (this.delete.state && Date.now() - this.delete.start >= 500) {
+      this.typing_del();
+      this.delete.start = Date.now() - (500 - 25);
+    }
+    if (this.left_arrow.state && Date.now() - this.left_arrow.start >= 500) {
+      this.selected_pos--;
+      this.selected_pos = minmax(this.selected_pos, 0, entry_length);
+      this.left_arrow.start = Date.now() - (500 - 25);
+    }
+    if (this.right_arrow.state && Date.now() - this.right_arrow.start >= 500) {
+      this.selected_pos++;
+      this.selected_pos = minmax(this.selected_pos, 0, entry_length);
+      this.right_arrow.start = Date.now() - (500 - 25);
+    }
+  }
+  typing(contents) {
+    if (this.selected) {
+      let a = this.entry.slice(0, this.selected_pos);
+      let b = this.entry.slice(this.selected_pos);
+      a += contents;
+      this.entry = a + b;
+      this.blink.state = true;
+      this.blink.start = Date.now();
+      this.selected_pos += contents.length;
+      this.selected_pos = minmax(this.selected_pos, 0, this.entry.length);
+    }
+  }
+  typing_del() {
+    if (this.selected) {
+      let a = this.entry.slice(0, this.selected_pos);
+      let b = this.entry.slice(this.selected_pos);
+
+      a = a.substring(0, a.length - 1);
+      this.entry = a + b;
+      this.blink.state = true;
+      this.blink.start = Date.now();
+      this.selected_pos--;
+      this.selected_pos = minmax(this.selected_pos, 0, this.entry.length);
+    }
+  }
+  keyPressed(keyCode) {
+    if (this.selected) {
+      let entry_length = this.text_char_cords[this.text_char_cords.length - 1];
+      entry_length = entry_length[entry_length.length - 1];
+
+      switch (keyCode) {
+        case BACKSPACE:
+          this.left_arrow.state = false;
+          this.right_arrow.state = false;
+
+          this.typing_del();
+          this.delete.state = true;
+          this.delete.start = Date.now();
+          break;
+        case ESCAPE:
+          this.selected = 0;
+          break;
+        case LEFT_ARROW:
+          this.right_arrow.state = false;
+
+          this.left_arrow.state = true;
+          this.left_arrow.start = Date.now();
+
+          this.selected_pos--;
+          this.selected_pos = minmax(this.selected_pos, 0, entry_length);
+          break;
+        case RIGHT_ARROW:
+          this.left_arrow.state = false;
+
+          this.right_arrow.state = true;
+          this.right_arrow.start = Date.now();
+
+          this.selected_pos++;
+          this.selected_pos = minmax(this.selected_pos, 0, entry_length);
+          break;
+        case ENTER:
+          if (!keyIsDown(SHIFT)) {
+            evidence_chart.new_entry();
+            for (let e of evidence_chart.entries) {
+              e.selected = false;
+            }
+            let len = evidence_chart.entries.length;
+            evidence_chart.entries[len - 1].selected = true;
+          }
+          break;
+        case 67:
+          if (this.selected && keyIsDown(CONTROL)) {
+            copyToClipboard(this.entry);
+          }
+          break;
+      }
+    }
+  }
+  keyReleased(keyCode) {
+    switch (keyCode) {
+      case BACKSPACE:
+        this.delete.state = false;
+        break;
+      case LEFT_ARROW:
+        this.left_arrow.state = false;
+        break;
+      case RIGHT_ARROW:
+        this.right_arrow.state = false;
+        break;
+    }
+  }
+  paste(e) {
+    if (this.selected) {
+      this.typing(e);
+    }
+  }
+  draw() {
+    // this.draw_outline();
+    this.h = this.draw_text().new_h;
+
+    let res = new Object();
+    res.y_end = this.y + this.h + 8;
+    return res;
+  }
+  draw_attributes() {
+    let x_offset = 0;
+    let y_offset = 0;
+    for (let e of this.attributes) {
+      x_offset += e.w;
+      if (!e.dragging) {
+        e.xe = this.x + this.w - x_offset;
+        e.ye = this.y - y_offset;
+      }
+      e.draw();
+    }
+  }
+  draw_outline() {
+    strokeWeight(2);
+    stroke(color_pallet[1] - 50);
+    if (dark_mode) {
+      fill(bg * 0.75, 255);
+    } else {
+      fill(bg + 30, 255);
+    }
+    rectMode(CORNER);
+    rect(this.x, this.y, this.w, this.h, 7);
+  }
+  detect_inside(x = mouseX, y = mouseY) {
+    if (
+      this.x <= x &&
+      x <= this.x + this.w &&
+      this.y <= y &&
+      y <= this.y + this.h
+    ) {
+      return true;
+    }
+    return false;
+  }
+  mousePressed(x, y) {
+    this.selected = false;
+    if (this.detect_inside(x, y)) {
+      this.text_update_cords = [true, x, y];
+    }
+    for (let e of this.attributes) {
+      e.mousePressed(x, y);
+    }
+  }
+  mouseDragged(x, y) {
+    for (let e of this.attributes) {
+      e.mouseDragged(x, y);
+    }
+  }
+  mouseReleased() {
+    for (let e of this.attributes) {
+      e.mouseReleased(1);
+    }
+  }
+  mousePressed_part2(x, y) {
+    this.selected = true;
+    let row = floor((y - this.text_char_cords[0][0]) / this.text_size) - 1;
+    row = minmax(row, 0, this.text_char_cords.length - 1);
+    let points = this.text_char_cords[row][1];
+    points = points.slice(0, points.length - 1);
+    points.push(x);
+    points.sort((a, b) => a - b);
+    let point = points.findIndex((element) => element == x);
+    this.selected_pos = this.text_char_cords[row][2][point];
+    this.blink.state = true;
+    this.blink.start = Date.now();
+  }
+  draw_text() {
+    noStroke();
+    if (dark_mode) {
+      fill(155);
+    } else {
+      fill(155);
+    }
+    textAlign(LEFT, TOP);
+    textFont("Impact");
+
+    textSize(this.text_size);
+
+    let temp_entry = this.entry;
+    if (this.entry.trim() == '' && !this.selected) {
+      this.entry = 'enter title here';
+      fill(75);
+    }
+
+    let y_offset = -this.text_size + 8;
+    let char_count = 0;
+    this.text_char_cords = [];
+
+    let print_entry = this.entry.split("\n");
+
+    if (Date.now() >= this.blink.start + 500) {
+      this.blink.state = !this.blink.state;
+      this.blink.start = Date.now();
+    }
+    for (let row of print_entry) {
+      if (this.text_update_cords) {
+        this.text_char_cords.push([this.y + y_offset, [], []]);
+      }
+      y_offset += this.text_size;
+      let x_offset = 8;
+      for (let i of row.split(" ")) {
+        let target_x = this.x + x_offset;
+        let target_y = this.y + y_offset;
+        if (target_x + textWidth(i) >= this.x + this.w - 8) {
+          y_offset += this.text_size;
+          target_y += this.text_size;
+          target_x -= x_offset;
+          x_offset = 8;
+          if (this.text_update_cords) {
+            this.text_char_cords.push([this.y + y_offset, [], []]);
+          }
+        }
+        i += " ";
+        for (let letter of i) {
+          let target_x = this.x + x_offset;
+          let target_y = this.y + y_offset;
+
+          text(letter, target_x, target_y);
+          if (this.text_update_cords) {
+            this.text_char_cords[this.text_char_cords.length - 1][1].push(
+              target_x + textWidth(letter) / 2
+            );
+            this.text_char_cords[this.text_char_cords.length - 1][2].push(
+              char_count
+            );
+          }
+          x_offset += textWidth(letter);
+          char_count++;
+          if (
+            this.selected_pos == char_count - 1 &&
+            this.blink.state &&
+            this.selected
+          ) {
+            rect(target_x, target_y, 2, this.text_size);
+          }
+        }
+      }
+    }
+    if (this.text_update_cords[0] == true) {
+      this.text_update_cords[0] = 2;
+    }
+    this.entry = temp_entry;
+
+    let res = new Object();
+    res.new_h = this.text_size + y_offset + 8;
+    return res;
+  }
+}
 class AddEntry {
   constructor() {
     this.x = 0;
@@ -592,69 +938,7 @@ class AddEntry {
     textFont("Impact");
     textSize(this.text_size);
 
-    let txt = "+ Add Entry";
-    text(txt, this.x, this.y);
-
-    this.h = this.text_size;
-    this.w = textWidth(txt);
-
-    let res = new Object();
-    res.y_end = this.y + this.text_size + 8;
-    return res;
-  }
-  draw_attributes() {}
-}
-class Save {
-  constructor() {
-    this.x = 0;
-    this.y = 0;
-    this.w = 0;
-    this.h = 0;
-
-    this.text_size = 25;
-  }
-  update() {}
-  detect_inside(x = mouseX, y = mouseY) {
-    if (
-      this.x <= x &&
-      x <= this.x + this.w &&
-      this.y <= y &&
-      y <= this.y + this.h
-    ) {
-      return true;
-    }
-    return false;
-  }
-  mousePressed(x, y) {
-    if (this.detect_inside(x, y)) {
-      const data = new Object();
-      data.entries = evidence_chart.entries;
-      data.udjatest = udjatest;
-      var sus = LJSON.stringify(data)
-      print(sus)
-      download("ENTER_NAME_HERE", sus);
-    }
-  }
-  mouseDragged() {}
-  mouseReleased() {}
-  mousePressed_part2() {}
-  typing() {}
-  typing_del() {}
-  keyPressed() {}
-  keyReleased() {}
-  paste(e) {}
-  draw() {
-    noStroke();
-    if (dark_mode) {
-      fill(155);
-    } else {
-      fill(155);
-    }
-    textAlign(LEFT, TOP);
-    textFont("Impact");
-    textSize(this.text_size);
-
-    let txt = "> Save";
+    let txt = "+ Add Note";
     text(txt, this.x, this.y);
 
     this.h = this.text_size;
